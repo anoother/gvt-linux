@@ -49,7 +49,9 @@
 
 unsigned long intel_gvt_get_device_type(struct intel_gvt *gvt)
 {
-	if (IS_BROADWELL(gvt->dev_priv))
+	if (IS_HASWELL(gvt->dev_priv))
+		return D_HSW;
+	else if (IS_BROADWELL(gvt->dev_priv))
 		return D_BDW;
 	else if (IS_SKYLAKE(gvt->dev_priv))
 		return D_SKL;
@@ -832,8 +834,9 @@ static int dp_aux_ch_ctl_mmio_write(struct intel_vgpu *vgpu,
 		&& offset != _REG_SKL_DP_AUX_CH_CTL(port_index)) {
 		/* SKL DPB/C/D aux ctl register changed */
 		return 0;
-	} else if (IS_BROADWELL(vgpu->gvt->dev_priv) &&
-		   offset != _REG_HSW_DP_AUX_CH_CTL(port_index)) {
+	} else if ((IS_HASWELL(vgpu->gvt->dev_priv)
+		|| IS_BROADWELL(vgpu->gvt->dev_priv))
+		&& offset != _REG_HSW_DP_AUX_CH_CTL(port_index)) {
 		/* write to the data registers */
 		return 0;
 	}
@@ -2934,7 +2937,8 @@ int intel_gvt_setup_mmio_info(struct intel_gvt *gvt)
 	if (ret)
 		goto err;
 
-	if (IS_BROADWELL(dev_priv)) {
+	if (IS_HASWELL(dev_priv)
+		|| IS_BROADWELL(dev_priv)) {
 		ret = init_broadwell_mmio_info(gvt);
 		if (ret)
 			goto err;

@@ -887,7 +887,7 @@ static int cmd_handler_lri(struct parser_exec_state *s)
 	struct intel_gvt *gvt = s->vgpu->gvt;
 
 	for (i = 1; i < cmd_len; i += 2) {
-		if (IS_BROADWELL(gvt->dev_priv) &&
+		if ((IS_HASWELL(gvt->dev_priv) || IS_BROADWELL(gvt->dev_priv)) &&
 				(s->ring_id != RCS)) {
 			if (s->ring_id == BCS &&
 					cmd_reg(s, i) ==
@@ -909,7 +909,7 @@ static int cmd_handler_lrr(struct parser_exec_state *s)
 	int cmd_len = cmd_length(s);
 
 	for (i = 1; i < cmd_len; i += 2) {
-		if (IS_BROADWELL(s->vgpu->gvt->dev_priv))
+		if (IS_HASWELL(s->vgpu->gvt->dev_priv) || IS_BROADWELL(s->vgpu->gvt->dev_priv))
 			ret |= ((cmd_reg_inhibit(s, i) ||
 					(cmd_reg_inhibit(s, i + 1)))) ?
 				-EINVAL : 0;
@@ -933,7 +933,7 @@ static int cmd_handler_lrm(struct parser_exec_state *s)
 	int cmd_len = cmd_length(s);
 
 	for (i = 1; i < cmd_len;) {
-		if (IS_BROADWELL(gvt->dev_priv))
+		if (IS_HASWELL(gvt->dev_priv) || IS_BROADWELL(gvt->dev_priv))
 			ret |= (cmd_reg_inhibit(s, i)) ? -EINVAL : 0;
 		if (ret)
 			break;
@@ -1259,7 +1259,7 @@ static int decode_mi_display_flip(struct parser_exec_state *s,
 {
 	struct drm_i915_private *dev_priv = s->vgpu->gvt->dev_priv;
 
-	if (IS_BROADWELL(dev_priv))
+	if (IS_HASWELL(dev_priv) || IS_BROADWELL(dev_priv))
 		return gen8_decode_mi_display_flip(s, info);
 	if (IS_SKYLAKE(dev_priv) || IS_KABYLAKE(dev_priv))
 		return skl_decode_mi_display_flip(s, info);
@@ -1272,7 +1272,8 @@ static int check_mi_display_flip(struct parser_exec_state *s,
 {
 	struct drm_i915_private *dev_priv = s->vgpu->gvt->dev_priv;
 
-	if (IS_BROADWELL(dev_priv)
+	if (IS_HASWELL(dev_priv)
+		|| IS_BROADWELL(dev_priv)
 		|| IS_SKYLAKE(dev_priv)
 		|| IS_KABYLAKE(dev_priv))
 		return gen8_check_mi_display_flip(s, info);
@@ -1285,7 +1286,8 @@ static int update_plane_mmio_from_mi_display_flip(
 {
 	struct drm_i915_private *dev_priv = s->vgpu->gvt->dev_priv;
 
-	if (IS_BROADWELL(dev_priv)
+	if (IS_HASWELL(dev_priv)
+		|| IS_BROADWELL(dev_priv)
 		|| IS_SKYLAKE(dev_priv)
 		|| IS_KABYLAKE(dev_priv))
 		return gen8_update_plane_mmio_from_mi_display_flip(s, info);
@@ -1567,8 +1569,8 @@ static int batch_buffer_needs_scan(struct parser_exec_state *s)
 {
 	struct intel_gvt *gvt = s->vgpu->gvt;
 
-	if (IS_BROADWELL(gvt->dev_priv) || IS_SKYLAKE(gvt->dev_priv)
-		|| IS_KABYLAKE(gvt->dev_priv)) {
+	if (IS_HASWELL(gvt->dev_priv) || IS_BROADWELL(gvt->dev_priv)
+		|| IS_SKYLAKE(gvt->dev_priv) || IS_KABYLAKE(gvt->dev_priv)) {
 		/* BDW decides privilege based on address space */
 		if (cmd_val(s, 0) & (1 << 8))
 			return 0;

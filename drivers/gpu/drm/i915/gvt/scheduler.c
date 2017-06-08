@@ -73,7 +73,7 @@ static int populate_shadow_context(struct intel_vgpu_workload *workload)
 
 	context_page_num = context_page_num >> PAGE_SHIFT;
 
-	if (IS_BROADWELL(gvt->dev_priv) && ring_id == RCS)
+	if ((IS_HASWELL(gvt->dev_priv) || IS_BROADWELL(gvt->dev_priv)) && ring_id == RCS)
 		context_page_num = 19;
 
 	i = 2;
@@ -356,7 +356,7 @@ static void update_guest_context(struct intel_vgpu_workload *workload)
 
 	context_page_num = context_page_num >> PAGE_SHIFT;
 
-	if (IS_BROADWELL(gvt->dev_priv) && ring_id == RCS)
+	if ((IS_HASWELL(gvt->dev_priv) || IS_BROADWELL(gvt->dev_priv)) && ring_id == RCS)
 		context_page_num = 19;
 
 	i = 2;
